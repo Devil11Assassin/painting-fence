@@ -8,7 +8,7 @@
 
 ## 🚀 Features
 
-- **O(N) Time Complexity** – Processes upto 400 million planks in **under 4 seconds**.
+- **Θ(N) Time Complexity** – Processes upto 400 million planks in **under 4 seconds**.
 - **Stack-Safe** – No recursion, avoids stack overflows.
 - **Optimal Strokes** – Correctly minimizes vertical/horizontal brush strokes just like the known approaches.
 
@@ -25,7 +25,8 @@ Given `N` vertical planks of varying heights, determine the **minimum number of 
 
 ## 🛠️ Solution 
 
-Explained in-depth (w/ examples) in the accompanying slides.
+- Included with the known O(N²) and O(N log N) solutions, along with automatically generated tests to compare performance under different scenarios.
+- Explained in-depth (w/ examples) in the accompanying slides.
 
 ---
 
