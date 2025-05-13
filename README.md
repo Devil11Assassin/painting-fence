@@ -2,6 +2,7 @@
 
 **A novel, linear-time algorithm to solve the Painting Fence problem, outperforming the known O(N²) and O(N log N) approaches.**
 
+[![Ain Shams University](https://img.shields.io/badge/Ain_Shams_University-CIS-orange)](https://cis.asu.edu.eg/)
 [![Codeforces](https://img.shields.io/badge/Codeforces-448C-orange)](https://codeforces.com/problemset/problem/448/C)
 
 ---
@@ -26,9 +27,10 @@ Given `N` vertical planks of varying heights, determine the **minimum number of 
 ## 🛠️ Solution 
 
 - Included with the known O(N²) and O(N log N) solutions, along with automatically generated tests to compare performance under different scenarios.
-- Explained in-depth (w/ examples) in the accompanying slides.
+- Explained in-depth (w/ examples) in the [slides (English)]() accompanied by a [video (Arabic)]().
 
 ---
 
-Author: Muhammad Mounir / Devil Assassin
-Acknowledgments: Dr. Ahmed and Dr. Soha (ASU CIS 340 - Analysis and Design of Algorithms course).
+## 📚 Acknowledgments
+- This work was developed as part of coursework at [FCIS Ain Shams University](https://cis.asu.edu.eg/).  
+- Special thanks to [Dr. Ahmed] and [Dr. Soha] for their guidance in the Algorithms course.  
