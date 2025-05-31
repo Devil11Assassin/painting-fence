@@ -1,5 +1,6 @@
 ﻿#pragma region HEADERS
 #include <iostream>
+#include <stack>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -30,6 +31,7 @@ vector<int> testSizes = { 1000, 10000, 100000, 1000000, 10000000, 100000000, 400
 void test(int size, string type);
 int paintingFenceOrig(vector<int>& a, int left, int right, int curHeight);
 int paintingFenceSegmentTree(const vector<int>& a);
+int paintingFenceCartesianTree(const std::vector<int>& a, int N);
 int paintingFence(vector<int>& a);
 #pragma endregion
 
@@ -99,7 +101,7 @@ void test(int size, string type)
 	int minStrokesOrig = 0;
 	if (size < 100000)
 		minStrokesOrig = paintingFenceOrig(a, 0, a.size() - 1, 0);
-	else if (size <= 400000000 && type == "randomized")
+	else if (type == "randomized")
 		minStrokesOrig = paintingFenceOrig(a, 0, a.size() - 1, 0);
 
 
@@ -112,12 +114,21 @@ void test(int size, string type)
 		minStrokesTree = paintingFenceSegmentTree(a);
 	auto tree = chrono::high_resolution_clock::now();
 
+	int minStrokesCart = 0;
+	if (size < 100000)
+		minStrokesCart = paintingFenceCartesianTree(a, a.size());
+	else if (size < 1000000 && type == "randomized")
+		minStrokesCart = paintingFenceCartesianTree(a, a.size());
+
+	auto cart = chrono::high_resolution_clock::now();
+
 	int minStrokesFast = paintingFence(a);
 	auto fast = chrono::high_resolution_clock::now();
 
 	long long origTime = chrono::duration_cast<chrono::microseconds>(orig - start).count();
 	long long treeTime = chrono::duration_cast<chrono::microseconds>(tree - orig).count();
-	long long fastTime = chrono::duration_cast<chrono::microseconds>(fast - tree).count();
+	long long cartTime = chrono::duration_cast<chrono::microseconds>(cart - tree).count();
+	long long fastTime = chrono::duration_cast<chrono::microseconds>(fast - cart).count();
 
 	output += "=================\nTEST (" + type + ")\n=================\n";
 	
@@ -127,10 +138,15 @@ void test(int size, string type)
 		output += "Min Strokes ORIG = STACK OVERFLOW\n";
 
 	if (minStrokesTree)
-		output += "Min Strokes TREE = " + to_string(minStrokesTree) + "\tTime: " + to_string(treeTime) + " microseconds\n";
+		output += "Min Strokes SEGT = " + to_string(minStrokesTree) + "\tTime: " + to_string(treeTime) + " microseconds\n";
 	else
-		output += "Min Strokes TREE = STACK OVERFLOW\n";
+		output += "Min Strokes SEGT = STACK OVERFLOW\n";
 
+	if (minStrokesCart)
+		output += "Min Strokes CART = " + to_string(minStrokesCart) + "\tTime: " + to_string(cartTime) + " microseconds\n";
+	else
+		output += "Min Strokes CART = STACK OVERFLOW\n";
+	
 	output += "Min Strokes O(N) = " + to_string(minStrokesFast) + "\tTime: " + to_string(fastTime) + " microseconds\n";
 	
 	a.clear();
@@ -218,6 +234,64 @@ int paintingFenceSegmentTree(const std::vector<int>& a)
 	segTree.assign(4 * n, 0);
 	buildSeg(1, 0, n - 1);
 	return solveRec(0, n - 1, 0);
+}
+#pragma endregion
+
+#pragma region CARTESIAN TREE
+struct TreeNode
+{
+	int idx;
+	int value;
+	TreeNode* left;
+	TreeNode* right;
+
+	TreeNode(int value, int idx) : value(value), idx(idx), left(nullptr), right(nullptr) {}
+};
+
+TreeNode* BuildCartesianTree(const std::vector<int>& arr, int N)
+{
+	stack<TreeNode*> stack;
+	TreeNode* root = nullptr;
+
+	for (int i = 0; i < N; i++) {
+		int value = arr[i];
+		TreeNode* currentNode = new TreeNode(value, i);
+
+		while (!stack.empty() && stack.top()->value > value)
+			currentNode->left = stack.top(), stack.pop();
+
+		if (!stack.empty())
+			stack.top()->right = currentNode;
+		else
+			root = currentNode;
+
+		stack.push(currentNode);
+	}
+
+	return root;
+}
+
+int MinStrokesCartesian(int l, int r, int height, TreeNode* currentNode)
+{
+	if (l > r)
+		return 0;
+
+	if (r > l)
+	{
+		int takeCur = currentNode->value - height +
+			MinStrokesCartesian(l, currentNode->idx - 1, currentNode->value, currentNode->left) +
+			MinStrokesCartesian(currentNode->idx + 1, r, currentNode->value, currentNode->right);
+
+		return min(takeCur, r - l + 1);
+	}
+
+	return height >= currentNode->value ? 0 : 1;
+}
+
+int paintingFenceCartesianTree(const std::vector<int>& a, int N)
+{
+	TreeNode* root = BuildCartesianTree(a, N);
+	return MinStrokesCartesian(0, N - 1, 0, root);
 }
 #pragma endregion
 
