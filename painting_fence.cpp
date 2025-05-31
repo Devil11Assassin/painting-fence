@@ -242,56 +242,67 @@ struct TreeNode
 {
 	int idx;
 	int value;
-	TreeNode* left;
-	TreeNode* right;
+	int left;
+	int right;
 
-	TreeNode(int value, int idx) : value(value), idx(idx), left(nullptr), right(nullptr) {}
+	TreeNode(int value, int idx) : value(value), idx(idx), left(-1), right(-1) {}
 };
 
-TreeNode* BuildCartesianTree(const std::vector<int>& arr, int N)
+vector<TreeNode> treeNodes;
+
+TreeNode BuildCartesianTree(const vector<int> &arr, int N)
 {
-	stack<TreeNode*> stack;
-	TreeNode* root = nullptr;
+	TreeNode *root = nullptr;
+	treeNodes.clear();
+	treeNodes.reserve(N);
 
-	for (int i = 0; i < N; i++) {
-		int value = arr[i];
-		TreeNode* currentNode = new TreeNode(value, i);
+	for (int i = 0; i < N; i++)
+		treeNodes.emplace_back(arr[i], i);
 
-		while (!stack.empty() && stack.top()->value > value)
-			currentNode->left = stack.top(), stack.pop();
+	vector<TreeNode> stack;
+	stack.reserve(N);
+
+	for (int i = 0; i < N; i++) 
+	{
+		TreeNode &currentNode = treeNodes[i];
+
+		while (!stack.empty() && stack.back().value > currentNode.value)
+			currentNode.left = stack.back().idx, stack.pop_back();
 
 		if (!stack.empty())
-			stack.top()->right = currentNode;
+			treeNodes[stack.back().idx].right = currentNode.idx;
 		else
-			root = currentNode;
+			root = &currentNode;
 
-		stack.push(currentNode);
+		stack.push_back(currentNode);
 	}
 
-	return root;
+	return *root;
 }
 
-int MinStrokesCartesian(int l, int r, int height, TreeNode* currentNode)
+int MinStrokesCartesian(int l, int r, int height, int currentNodeIdx)
 {
 	if (l > r)
 		return 0;
 
+	TreeNode currentNode = treeNodes[currentNodeIdx];
+
 	if (r > l)
 	{
-		int takeCur = currentNode->value - height +
-			MinStrokesCartesian(l, currentNode->idx - 1, currentNode->value, currentNode->left) +
-			MinStrokesCartesian(currentNode->idx + 1, r, currentNode->value, currentNode->right);
+		int takeCur = currentNode.value - height +
+			MinStrokesCartesian(l, currentNode.idx - 1, currentNode.value, currentNode.left) +
+			MinStrokesCartesian(currentNode.idx + 1, r, currentNode.value, currentNode.right);
 
 		return min(takeCur, r - l + 1);
 	}
 
-	return height >= currentNode->value ? 0 : 1;
+	return height >= currentNode.value ? 0 : 1;
 }
 
 int paintingFenceCartesianTree(const std::vector<int>& a, int N)
 {
-	TreeNode* root = BuildCartesianTree(a, N);
-	return MinStrokesCartesian(0, N - 1, 0, root);
+	TreeNode root = BuildCartesianTree(a, N);
+	return MinStrokesCartesian(0, N - 1, 0, root.idx);
 }
 #pragma endregion
 
